@@ -1,0 +1,62 @@
+---
+# Playbook Ansible exécuté par Semaphore
+# Rôle : piloter Terraform pour créer une VM Proxmox
+# Provider : proxmox_virtual_environment_vm
+
+- name: Provision VM via Terraform (Proxmox VE)
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  # Variables injectées depuis Semaphore / GLPI
+  vars:
+    vm_name: "{{ vm_name | default('vm-via-glpi') }}"        # Nom de la VM
+    proxmox_node: "{{ proxmox_node | default('A51') }}"     # Node Proxmox
+    template_id: "{{ template_id | default(301) | int }}"   # ID template
+    vm_cpu: "{{ vm_cpu | default(1) | int }}"               # CPU cores
+    vm_ram: "{{ vm_ram | default(2048) | int }}"            # RAM en MB
+    vm_bridge: "{{ vm_bridge | default('vmbr0') }}"         # Bridge réseau
+
+  tasks:
+    - name: Terraform | Init
+      command: terraform init -input=false
+      args:
+        chdir: "{{ playbook_dir }}"
+
+    - name: Terraform | Apply (create VM)
+      command: >
+        terraform apply -auto-approve -input=false
+        -var="vm_name={{ vm_name }}"
+        -var="proxmox_node={{ proxmox_node }}"
+        -var="template_id={{ template_id }}"
+        -var="vm_cpu={{ vm_cpu }}"
+        -var="vm_ram={{ vm_ram }}"
+        -var="vm_bridge={{ vm_bridge }}"
+      args:
+        chdir: "{{ playbook_dir }}"
+      register: tf_apply
+      changed_when: true
+
+    - name: Terraform | Output (JSON)
+      command: terraform output -json
+      args:
+        chdir: "{{ playbook_dir }}"
+      register: tf_out
+
+    - name: Parse outputs
+      set_fact:
+        vm_id: "{{ (tf_out.stdout | from_json).vm_id.value | default('N/A') }}"
+        vm_ip: "{{ (tf_out.stdout | from_json).vm_ipv4.value | default('DHCP') }}"
+
+    - name: Show VM info
+      debug:
+        msg: |
+          ✅ VM créée avec succès
+          Nom        : {{ vm_name }}
+          Node       : {{ proxmox_node }}
+          Template   : {{ template_id }}
+          CPU        : {{ vm_cpu }}
+          RAM        : {{ vm_ram }} MB
+          Bridge     : {{ vm_bridge }}
+          VM ID      : {{ vm_id }}
+          IPv4       : {{ vm_ip }}
