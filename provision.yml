@@ -33,13 +33,3 @@
     - name: Show outputs
       debug:
         var: tf_out.stdout
-```
-
-**Changement clé :** Ligne 14 → `terraform apply -auto-approve -input=false -var-file=variable.tfvars`
-
----
-
-## 📋 **EXPLICATION**
-```
-variable.tfvars        → Credentials Proxmox (pm_api_url, pm_api_token_id, pm_api_token_secret)
-TF_VAR_* (environment) → Paramètres VM dynamiques (template_id, vm_name, vm_cpu, vm_ram)
