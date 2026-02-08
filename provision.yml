@@ -9,28 +9,12 @@
       command: terraform init -input=false
       args:
         chdir: "{{ playbook_dir }}"
-      environment:
-        TF_VAR_pm_api_url: "{{ lookup('env', 'PM_API_URL') | default('https://192.168.1.180:8006/api2/json', true) }}"
-        TF_VAR_pm_api_token_id: "{{ lookup('env', 'PM_API_TOKEN_ID') | default('', true) }}"
-        TF_VAR_pm_api_token_secret: "{{ lookup('env', 'PM_API_TOKEN_SECRET') | default('', true) }}"
-        TF_VAR_pm_tls_insecure: "{{ lookup('env', 'PM_TLS_INSECURE') | default('true', true) }}"
-        TF_VAR_template_id: "{{ lookup('env', 'TF_VAR_template_id') | default('102', true) }}"
-        TF_VAR_vm_name: "{{ lookup('env', 'TF_VAR_vm_name') | default('vm-auto', true) }}"
-        TF_VAR_vm_node: "{{ lookup('env', 'TF_VAR_vm_node') | default('A51', true) }}"
-        TF_VAR_vm_cpu: "{{ lookup('env', 'TF_VAR_vm_cpu') | default('1', true) }}"
-        TF_VAR_vm_ram: "{{ lookup('env', 'TF_VAR_vm_ram') | default('1024', true) }}"
-        TF_VAR_vm_disk: "{{ lookup('env', 'TF_VAR_vm_disk') | default('20G', true) }}"
-        TF_VAR_vm_bridge: "{{ lookup('env', 'TF_VAR_vm_bridge') | default('vmbr0', true) }}"
 
     - name: Terraform | Apply
-      command: terraform apply -auto-approve -input=false
+      command: terraform apply -auto-approve -input=false -var-file=variable.tfvars
       args:
         chdir: "{{ playbook_dir }}"
       environment:
-        TF_VAR_pm_api_url: "{{ lookup('env', 'PM_API_URL') | default('https://192.168.1.180:8006/api2/json', true) }}"
-        TF_VAR_pm_api_token_id: "{{ lookup('env', 'PM_API_TOKEN_ID') | default('', true) }}"
-        TF_VAR_pm_api_token_secret: "{{ lookup('env', 'PM_API_TOKEN_SECRET') | default('', true) }}"
-        TF_VAR_pm_tls_insecure: "{{ lookup('env', 'PM_TLS_INSECURE') | default('true', true) }}"
         TF_VAR_template_id: "{{ lookup('env', 'TF_VAR_template_id') | default('102', true) }}"
         TF_VAR_vm_name: "{{ lookup('env', 'TF_VAR_vm_name') | default('vm-auto', true) }}"
         TF_VAR_vm_node: "{{ lookup('env', 'TF_VAR_vm_node') | default('A51', true) }}"
@@ -49,3 +33,13 @@
     - name: Show outputs
       debug:
         var: tf_out.stdout
+```
+
+**Changement clé :** Ligne 14 → `terraform apply -auto-approve -input=false -var-file=variable.tfvars`
+
+---
+
+## 📋 **EXPLICATION**
+```
+variable.tfvars        → Credentials Proxmox (pm_api_url, pm_api_token_id, pm_api_token_secret)
+TF_VAR_* (environment) → Paramètres VM dynamiques (template_id, vm_name, vm_cpu, vm_ram)
