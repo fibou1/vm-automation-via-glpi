@@ -1,9 +1,9 @@
-resource "proxmox_virtual_environment_vm" "vm-via-glpi-test" {
-  name      = "vm-via-glpi"
-  node_name = "A51"
+resource "proxmox_virtual_environment_vm" "vm" {
+  name      = var.vm_name
+  node_name = var.vm_node
 
   clone {
-    vm_id = 301
+    vm_id = var.template_id
   }
 
   agent {
@@ -19,16 +19,15 @@ resource "proxmox_virtual_environment_vm" "vm-via-glpi-test" {
   }
 
   network_device {
-    bridge = "vmbr0"
+    bridge = var.vm_bridge
     model  = "virtio"
   }
 
   cpu {
-    cores = 1
+    cores = var.vm_cpu
   }
 
   memory {
-    dedicated = 2048
+    dedicated = var.vm_ram
   }
 }
-

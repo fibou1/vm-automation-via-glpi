@@ -9,11 +9,27 @@
       command: terraform init -input=false
       args:
         chdir: "{{ playbook_dir }}"
+      environment:
+        TF_VAR_template_id: "{{ lookup('env', 'TF_VAR_template_id') | default('9000', true) }}"
+        TF_VAR_vm_name: "{{ lookup('env', 'TF_VAR_vm_name') | default('vm-auto', true) }}"
+        TF_VAR_vm_node: "{{ lookup('env', 'TF_VAR_vm_node') | default('A51', true) }}"
+        TF_VAR_vm_cpu: "{{ lookup('env', 'TF_VAR_vm_cpu') | default('1', true) }}"
+        TF_VAR_vm_ram: "{{ lookup('env', 'TF_VAR_vm_ram') | default('1024', true) }}"
+        TF_VAR_vm_disk: "{{ lookup('env', 'TF_VAR_vm_disk') | default('20G', true) }}"
+        TF_VAR_vm_bridge: "{{ lookup('env', 'TF_VAR_vm_bridge') | default('vmbr0', true) }}"
 
     - name: Terraform | Apply
-      command: terraform apply -auto-approve -input=false
+      command: terraform apply -auto-approve -input=false -var-file=variable.tfvars
       args:
         chdir: "{{ playbook_dir }}"
+      environment:
+        TF_VAR_template_id: "{{ lookup('env', 'TF_VAR_template_id') | default('9000', true) }}"
+        TF_VAR_vm_name: "{{ lookup('env', 'TF_VAR_vm_name') | default('vm-auto', true) }}"
+        TF_VAR_vm_node: "{{ lookup('env', 'TF_VAR_vm_node') | default('A51', true) }}"
+        TF_VAR_vm_cpu: "{{ lookup('env', 'TF_VAR_vm_cpu') | default('1', true) }}"
+        TF_VAR_vm_ram: "{{ lookup('env', 'TF_VAR_vm_ram') | default('1024', true) }}"
+        TF_VAR_vm_disk: "{{ lookup('env', 'TF_VAR_vm_disk') | default('20G', true) }}"
+        TF_VAR_vm_bridge: "{{ lookup('env', 'TF_VAR_vm_bridge') | default('vmbr0', true) }}"
 
     - name: Terraform | Output (JSON)
       command: terraform output -json
