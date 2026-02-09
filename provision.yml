@@ -5,6 +5,16 @@
   gather_facts: false
 
   tasks:
+    - name: Terraform | Clean State
+      file:
+        path: "{{ playbook_dir }}/{{ item }}"
+        state: absent
+      loop:
+        - terraform.tfstate
+        - terraform.tfstate.backup
+        - .terraform.tfstate.lock.info
+      ignore_errors: yes
+
     - name: Terraform | Init
       command: terraform init -input=false
       args:
@@ -33,3 +43,12 @@
     - name: Show outputs
       debug:
         var: tf_out.stdout
+
+    - name: Terraform | Clean State After Success
+      file:
+        path: "{{ playbook_dir }}/{{ item }}"
+        state: absent
+      loop:
+        - terraform.tfstate
+        - terraform.tfstate.backup
+      ignore_errors: yes
