@@ -1,6 +1,6 @@
 # vm-automation-via-glpi
 
-Automatiser la création d’une VM Proxmox **à partir d’un template** via **Terraform**, piloté par un playbook **Ansible** (prévu pour être exécuté par **Semaphore**), typiquement déclenché depuis **GLPI** (formulaire / ticket / workflow).
+Automatiser la création d’une VM Proxmox sur un minipc avec accés vpn **à partir d’un template** via **Terraform**, piloté par un playbook **Ansible** (prévu pour être exécuté par **Semaphore**), typiquement déclenché depuis **GLPI** (formulaire / ticket / workflow).
 
 Le projet contient :
 - du Terraform pour cloner une VM dans Proxmox VE (provider `bpg/proxmox`),
@@ -32,19 +32,19 @@ Flux typique :
 - [variables.tf](variables.tf) : variables Proxmox + variables de la VM (nom, node, template, CPU, RAM, bridge).
 - [cloner-vm.tf](cloner-vm.tf) : ressource `proxmox_virtual_environment_vm` (clone + agent + DHCP + NIC + CPU/RAM).
 - [outpute.tf](outpute.tf) : outputs Terraform (`vm_id`, `vm_ipv4`, `vm_ipv4_addresses`).
-- [variable.tfvars](variable.tfvars) : exemple de valeurs pour se connecter à Proxmox (à compléter).
+- [secret.tfvars](secret.tfvars) : (à compléter).
 - [provision.yml](provision.yml) : playbook Ansible (Semaphore/GLPI) qui exécute Terraform.
 
 ## Configuration
 
 ### 1) Renseigner la connexion Proxmox
 
-Éditez [variable.tfvars](variable.tfvars) et remplacez les placeholders :
+Éditez [secret.tfvars](secret.tfvars) et remplacez les placeholders :
 - `pm_api_url`
 - `pm_api_token_id`
 - `pm_api_token_secret`
 
-Note : le playbook charge explicitement ce fichier via `-var-file=variable.tfvars`.
+Note : le playbook charge explicitement ce fichier via `-var-file=secret.tfvars`.
 
 ### 2) Paramètres VM (injectés par GLPI/Semaphore)
 
@@ -64,8 +64,8 @@ Depuis le dossier du projet :
 
 ```bash
 terraform init
-terraform plan -var-file=variable.tfvars
-terraform apply -auto-approve -var-file=variable.tfvars \
+terraform plan -var-file=secret.tfvars
+terraform apply -auto-approve -var-file=secret.tfvars \
 	-var="vm_name=vm-demo" \
 	-var="proxmox_node=A51" \
 	-var="template_id=301" \
